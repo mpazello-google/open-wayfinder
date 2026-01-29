@@ -1,0 +1,12 @@
+nome,lat,lng,tipo,descricao,elevacao
+"Ponto Inicial",-25.4284,-49.2733,waypoint,"Marco zero do trajeto",934
+"Mirante Serra",-25.4290,-49.2825,waypoint,"Vista panorâmica da cidade",1100
+"Cachoeira Véu",-25.4310,-49.2910,waypoint,"Queda d'água de 30m",856
+"Trilha Norte P1",-25.4284,-49.2733,trackpoint,,934
+"Trilha Norte P2",-25.4287,-49.2745,trackpoint,,945
+"Trilha Norte P3",-25.4289,-49.2758,trackpoint,,958
+"Trilha Norte P4",-25.4290,-49.2770,trackpoint,,972
+"Trilha Norte P5",-25.4291,-49.2783,trackpoint,,989
+"Trilha Norte P6",-25.4292,-49.2796,trackpoint,,1005
+"Camping Base",-25.4320,-49.2950,waypoint,"Área de camping",820
+"Pico Alto",-25.4305,-49.3020,waypoint,"Ponto mais alto da trilha",1250

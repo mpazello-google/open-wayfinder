@@ -100,7 +100,7 @@ export function CSVImportDialog({ isOpen, onClose }: CSVImportDialogProps) {
   }, [parsedData, importPoints, handleClose]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">

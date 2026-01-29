@@ -83,6 +83,10 @@ export function GPSMap() {
     setIsAddingWaypoint(false);
   };
 
+  const handleOpenImport = () => {
+    setImportDialogOpen(true);
+  };
+
   const showWaypoints = filter === 'all' || filter === 'waypoints';
   const showTrails = filter === 'all' || filter === 'trails';
 
@@ -131,7 +135,7 @@ export function GPSMap() {
         <MapHeader
           isAddingWaypoint={isAddingWaypoint}
           onToggleAddWaypoint={() => setIsAddingWaypoint(!isAddingWaypoint)}
-          onOpenImport={() => setImportDialogOpen(true)}
+          onOpenImport={handleOpenImport}
         />
       </div>
 
@@ -173,10 +177,12 @@ export function GPSMap() {
       />
 
       {/* CSV Import Dialog */}
-      <CSVImportDialog
-        isOpen={importDialogOpen}
-        onClose={() => setImportDialogOpen(false)}
-      />
+      {importDialogOpen && (
+        <CSVImportDialog
+          isOpen={importDialogOpen}
+          onClose={() => setImportDialogOpen(false)}
+        />
+      )}
     </div>
   );
 }

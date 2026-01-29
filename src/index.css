@@ -298,3 +298,9 @@
 .animate-pulse-marker {
   animation: pulse-marker 2s ease-in-out infinite;
 }
+
+/* Ensure dialogs appear above Leaflet map (which uses z-index ~400-1000) */
+[data-radix-dialog-overlay],
+[data-radix-dialog-content] {
+  z-index: 10000 !important;
+}
