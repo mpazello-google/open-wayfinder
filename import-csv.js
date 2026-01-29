@@ -46,8 +46,8 @@ async function importCSV(filename) {
     descricao: row.descricao || null,
     elevacao: row.elevacao ? parseFloat(row.elevacao) : null,
     timestamp: row.timestamp || null,
-    track_id: row.track_id || null
-  }));
+    track_id: row.track_id && row.track_id.trim() !== '' ? row.track_id : null
+  })).filter(p => !isNaN(p.lat) && !isNaN(p.lng));
   
   console.log('📤 Enviando para o Supabase...');
   const { data, error } = await supabase
