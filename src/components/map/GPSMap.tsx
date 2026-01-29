@@ -15,7 +15,10 @@ import { CreateWaypointDialog } from './CreateWaypointDialog';
 import { CSVImportDialog } from './CSVImportDialog';
 
 // Fix Leaflet default marker icon
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+const leafletIcon = L.Icon.Default.prototype as {
+  _getIconUrl?: () => void;
+};
+delete leafletIcon._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
@@ -72,7 +75,7 @@ export function GPSMap() {
   const [clickPosition, setClickPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
 
-  const bounds = useMemo(() => getBounds(), [waypoints, tracks]);
+  const bounds = useMemo(() => getBounds(), [getBounds]);
 
   const handleMapClick = (lat: number, lng: number) => {
     setClickPosition({ lat, lng });

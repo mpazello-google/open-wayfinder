@@ -8,7 +8,7 @@ CREATE TABLE public.pontos_gps (
   tipo TEXT NOT NULL DEFAULT 'waypoint' CHECK (tipo IN ('waypoint', 'trackpoint')),
   elevacao DOUBLE PRECISION,
   timestamp TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  track_id UUID,
+  track_id TEXT,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
