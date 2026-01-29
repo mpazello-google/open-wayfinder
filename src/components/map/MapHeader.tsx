@@ -1,12 +1,13 @@
-import { Compass, Plus } from 'lucide-react';
+import { Compass, Plus, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface MapHeaderProps {
   isAddingWaypoint: boolean;
   onToggleAddWaypoint: () => void;
+  onOpenImport: () => void;
 }
 
-export function MapHeader({ isAddingWaypoint, onToggleAddWaypoint }: MapHeaderProps) {
+export function MapHeader({ isAddingWaypoint, onToggleAddWaypoint, onOpenImport }: MapHeaderProps) {
   return (
     <header className="map-control flex items-center justify-between p-3 animate-fade-in">
       <div className="flex items-center gap-3">
@@ -19,20 +20,33 @@ export function MapHeader({ isAddingWaypoint, onToggleAddWaypoint }: MapHeaderPr
         </div>
       </div>
 
-      <Button
-        onClick={onToggleAddWaypoint}
-        variant={isAddingWaypoint ? 'default' : 'outline'}
-        size="sm"
-        className="gap-2"
-      >
-        <Plus className="w-4 h-4" />
-        <span className="hidden sm:inline">
-          {isAddingWaypoint ? 'Clique no mapa' : 'Novo Waypoint'}
-        </span>
-        <span className="sm:hidden">
-          {isAddingWaypoint ? 'Clique...' : 'Novo'}
-        </span>
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          onClick={onOpenImport}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        >
+          <Upload className="w-4 h-4" />
+          <span className="hidden sm:inline">Importar CSV</span>
+          <span className="sm:hidden">CSV</span>
+        </Button>
+
+        <Button
+          onClick={onToggleAddWaypoint}
+          variant={isAddingWaypoint ? 'default' : 'outline'}
+          size="sm"
+          className="gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          <span className="hidden sm:inline">
+            {isAddingWaypoint ? 'Clique no mapa' : 'Novo Waypoint'}
+          </span>
+          <span className="sm:hidden">
+            {isAddingWaypoint ? 'Clique...' : 'Novo'}
+          </span>
+        </Button>
+      </div>
     </header>
   );
 }

@@ -12,6 +12,7 @@ import { MapFilters } from './MapFilters';
 import { MapHeader } from './MapHeader';
 import { MapStats } from './MapStats';
 import { CreateWaypointDialog } from './CreateWaypointDialog';
+import { CSVImportDialog } from './CSVImportDialog';
 
 // Fix Leaflet default marker icon
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -69,6 +70,7 @@ export function GPSMap() {
   const [isAddingWaypoint, setIsAddingWaypoint] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [clickPosition, setClickPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   const bounds = useMemo(() => getBounds(), [waypoints, tracks]);
 
@@ -126,6 +128,7 @@ export function GPSMap() {
         <MapHeader
           isAddingWaypoint={isAddingWaypoint}
           onToggleAddWaypoint={() => setIsAddingWaypoint(!isAddingWaypoint)}
+          onOpenImport={() => setImportDialogOpen(true)}
         />
       </div>
 
@@ -164,6 +167,12 @@ export function GPSMap() {
         onCreate={(data) => createPoint.mutate(data)}
         position={clickPosition}
         isLoading={createPoint.isPending}
+      />
+
+      {/* CSV Import Dialog */}
+      <CSVImportDialog
+        isOpen={importDialogOpen}
+        onClose={() => setImportDialogOpen(false)}
       />
     </div>
   );
