@@ -1,0 +1,15 @@
+services:
+  open-wayfinder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+        - VITE_SUPABASE_PUBLISHABLE_KEY=${VITE_SUPABASE_PUBLISHABLE_KEY}
+        - VITE_SUPABASE_PROJECT_ID=${VITE_SUPABASE_PROJECT_ID}
+    container_name: open-wayfinder
+    ports:
+      - "8090:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production

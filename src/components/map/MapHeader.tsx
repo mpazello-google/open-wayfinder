@@ -8,6 +8,11 @@ interface MapHeaderProps {
 }
 
 export function MapHeader({ isAddingWaypoint, onToggleAddWaypoint, onOpenImport }: MapHeaderProps) {
+  const handleImportClick = () => {
+    console.log('Import button clicked');
+    onOpenImport();
+  };
+
   return (
     <header className="map-control flex items-center justify-between p-3 animate-fade-in">
       <div className="flex items-center gap-3">
@@ -22,7 +27,7 @@ export function MapHeader({ isAddingWaypoint, onToggleAddWaypoint, onOpenImport 
 
       <div className="flex items-center gap-2">
         <Button
-          onClick={onOpenImport}
+          onClick={handleImportClick}
           variant="outline"
           size="sm"
           className="gap-2"

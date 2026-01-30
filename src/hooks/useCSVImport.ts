@@ -135,7 +135,32 @@ export function useCSVImport() {
       reader.onload = (e) => {
         try {
           const text = e.target?.result as string;
-          const rows = parseCSV(text);
+          const fileName = file.name.toLowerCase();
+          
+          let rows: Record<string, string>[] = [];
+          
+          // Check if file is JSON or CSV
+          if (fileName.endsWith('.json')) {
+            // Parse JSON
+            const jsonData = JSON.parse(text);
+            
+            if (!Array.isArray(jsonData)) {
+              reject(new Error('O arquivo JSON deve conter um array de objetos.'));
+              return;
+            }
+            
+            // Convert JSON objects to string records for validation
+            rows = jsonData.map(item => {
+              const record: Record<string, string> = {};
+              for (const key in item) {
+                record[key] = item[key] != null ? String(item[key]) : '';
+              }
+              return record;
+            });
+          } else {
+            // Parse CSV
+            rows = parseCSV(text);
+          }
           
           const validPoints: CSVPoint[] = [];
           let invalidCount = 0;
@@ -152,7 +177,8 @@ export function useCSVImport() {
           const headers = rows.length > 0 ? Object.keys(rows[0]) : [];
           resolve({ validPoints, invalidCount, headers });
         } catch (error) {
-          reject(error);
+          const errorMessage = error instanceof Error ? error.message : 'Formato inválido';
+          reject(new Error(errorMessage));
         }
       };
       reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
@@ -204,11 +230,18 @@ export function useCSVImport() {
 
   const resetProgress = () => setProgress(null);
 
+  const reset = () => {
+    setProgress(null);
+    importMutation.reset();
+  };
+
   return {
     parseFile,
     importPoints: importMutation.mutate,
     isImporting: importMutation.isPending,
+    isSuccess: importMutation.isSuccess,
     progress,
     resetProgress,
+    reset,
   };
 }

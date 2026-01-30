@@ -84,7 +84,9 @@ export function GPSMap() {
   };
 
   const handleOpenImport = () => {
+    console.log('handleOpenImport called, setting importDialogOpen to true');
     setImportDialogOpen(true);
+    console.log('importDialogOpen state should be true now');
   };
 
   const showWaypoints = filter === 'all' || filter === 'waypoints';
@@ -177,12 +179,35 @@ export function GPSMap() {
       />
 
       {/* CSV Import Dialog */}
-      {importDialogOpen && (
-        <CSVImportDialog
-          isOpen={importDialogOpen}
-          onClose={() => setImportDialogOpen(false)}
-        />
-      )}
+      <CSVImportDialog
+        isOpen={importDialogOpen}
+        onClose={() => {
+          console.log('Dialog onClose called');
+          setImportDialogOpen(false);
+        }}
+      />
+
+      {/* Debug button */}
+      <button
+        onClick={() => {
+          console.log('Debug button clicked, current state:', importDialogOpen);
+          setImportDialogOpen(!importDialogOpen);
+        }}
+        style={{
+          position: 'fixed',
+          top: '50%',
+          right: '10px',
+          zIndex: 10000,
+          padding: '10px 20px',
+          background: 'red',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+        }}
+      >
+        TEST DIALOG: {importDialogOpen ? 'OPEN' : 'CLOSED'}
+      </button>
     </div>
   );
 }

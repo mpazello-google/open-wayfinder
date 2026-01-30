@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Upload, FileText, AlertCircle, CheckCircle2 } from 'lucide-react';
 import {
   Dialog,
@@ -33,25 +33,55 @@ interface ParsedData {
 }
 
 export function CSVImportDialog({ isOpen, onClose }: CSVImportDialogProps) {
-  const { parseFile, importPoints, isImporting, progress, resetProgress } = useCSVImport();
+  console.log('CSVImportDialog rendered, isOpen:', isOpen);
+  const { parseFile, importPoints, isImporting, isSuccess, progress, reset } = useCSVImport();
   const [isDragging, setIsDragging] = useState(false);
   const [parsedData, setParsedData] = useState<ParsedData | null>(null);
   const [fileName, setFileName] = useState<string>('');
   const [parseError, setParseError] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Close dialog after successful import
+  useEffect(() => {
+    if (isSuccess && isOpen) {
+      const timer = setTimeout(() => {
+        setParsedData(null);
+        setFileName('');
+        setParseError('');
+        onClose();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess, isOpen, onClose]);
+
+  // Reset mutation when dialog closes
+  useEffect(() => {
+    if (!isOpen) {
+      setParsedData(null);
+      setFileName('');
+      setParseError('');
+      setIsDragging(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      reset();
+    }
+  }, [isOpen, reset]);
 
   const handleClose = useCallback(() => {
     if (!isImporting) {
       setParsedData(null);
       setFileName('');
       setParseError('');
-      resetProgress();
+      reset();
       onClose();
     }
-  }, [isImporting, onClose, resetProgress]);
+  }, [isImporting, onClose, reset]);
 
   const handleFile = useCallback(async (file: File) => {
-    if (!file.name.toLowerCase().endsWith('.csv')) {
-      setParseError('Por favor, selecione um arquivo CSV válido.');
+    const fileName = file.name.toLowerCase();
+    if (!fileName.endsWith('.csv') && !fileName.endsWith('.json')) {
+      setParseError('Por favor, selecione um arquivo CSV ou JSON válido.');
       return;
     }
 
@@ -62,7 +92,8 @@ export function CSVImportDialog({ isOpen, onClose }: CSVImportDialogProps) {
       const result = await parseFile(file);
       setParsedData(result);
     } catch (error) {
-      setParseError('Erro ao processar o arquivo CSV.');
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      setParseError(`Erro ao processar o arquivo: ${errorMessage}`);
       setParsedData(null);
     }
   }, [parseFile]);
@@ -91,13 +122,9 @@ export function CSVImportDialog({ isOpen, onClose }: CSVImportDialogProps) {
 
   const handleImport = useCallback(() => {
     if (parsedData?.validPoints.length) {
-      importPoints(parsedData.validPoints, {
-        onSuccess: () => {
-          handleClose();
-        },
-      });
+      importPoints(parsedData.validPoints);
     }
-  }, [parsedData, importPoints, handleClose]);
+  }, [parsedData, importPoints]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
@@ -105,10 +132,10 @@ export function CSVImportDialog({ isOpen, onClose }: CSVImportDialogProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Upload className="w-5 h-5" />
-            Importar CSV
+            Importar Pontos GPS
           </DialogTitle>
           <DialogDescription>
-            Importe pontos GPS a partir de um arquivo CSV.
+            Importe pontos GPS a partir de arquivos CSV ou JSON.
           </DialogDescription>
         </DialogHeader>
 
@@ -126,18 +153,19 @@ export function CSVImportDialog({ isOpen, onClose }: CSVImportDialogProps) {
                   : 'border-muted-foreground/25 hover:border-primary/50'
                 }
               `}
-              onClick={() => document.getElementById('csv-file-input')?.click()}
+              onClick={() => fileInputRef.current?.click()}
             >
               <input
+                ref={fileInputRef}
                 id="csv-file-input"
                 type="file"
-                accept=".csv"
+                accept=".csv,.json"
                 className="hidden"
                 onChange={handleFileInput}
               />
               <Upload className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
               <p className="text-sm font-medium">
-                Arraste um arquivo CSV aqui
+                Arraste um arquivo CSV ou JSON aqui
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 ou clique para selecionar
@@ -222,11 +250,19 @@ export function CSVImportDialog({ isOpen, onClose }: CSVImportDialogProps) {
 
           {/* Expected format hint */}
           {!parsedData && !isImporting && (
-            <div className="text-xs text-muted-foreground bg-muted/50 rounded p-3">
-              <p className="font-medium mb-1">Formato esperado:</p>
-              <code className="text-[10px]">
-                nome, lat, lng, tipo, descricao, elevacao, timestamp, track_id
-              </code>
+            <div className="text-xs text-muted-foreground bg-muted/50 rounded p-3 space-y-2">
+              <div>
+                <p className="font-medium mb-1">Formato CSV esperado:</p>
+                <code className="text-[10px] block">
+                  nome, lat, lng, tipo, descricao, elevacao, timestamp, track_id
+                </code>
+              </div>
+              <div>
+                <p className="font-medium mb-1">Formato JSON esperado:</p>
+                <code className="text-[10px] block">
+                  [{'{'}"nome": "...", "lat": -25.5, "lng": -48.5, "tipo": "waypoint"{'}'}]
+                </code>
+              </div>
             </div>
           )}
         </div>
