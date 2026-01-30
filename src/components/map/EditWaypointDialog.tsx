@@ -84,11 +84,21 @@ export function EditWaypointDialog({
     onClose();
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      handleClose();
+    }
+  };
+
   const isWaypoint = point?.tipo === 'waypoint';
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={isOpen} onOpenChange={handleOpenChange} modal={true}>
+      <DialogContent 
+        className="sm:max-w-md"
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isWaypoint ? 'bg-waypoint/10' : 'bg-primary/10'}`}>

@@ -135,20 +135,6 @@ export function WaypointMarker({ point, onEdit }: WaypointMarkerProps) {
               </span>
             </div>
           </div>
-
-          {onEdit && (
-            <div className="pt-3 mt-3 border-t border-border">
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full gap-2"
-                onClick={() => onEdit(point)}
-              >
-                <Pencil className="w-4 h-4" />
-                Editar ponto
-              </Button>
-            </div>
-          )}
         </div>
       </Popup>
     </Marker>
