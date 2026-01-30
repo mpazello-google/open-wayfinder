@@ -12,7 +12,7 @@ import { MapFilters } from './MapFilters';
 import { MapHeader } from './MapHeader';
 import { MapStats } from './MapStats';
 import { CreateWaypointDialog } from './CreateWaypointDialog';
-import { EditWaypointDialog } from './EditWaypointDialog';
+import { EditPanel } from './EditPanel';
 
 // Fix Leaflet default marker icon
 const leafletIcon = L.Icon.Default.prototype as {
@@ -34,6 +34,19 @@ function MapBoundsHandler({ bounds }: { bounds: [[number, number], [number, numb
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
     }
   }, [bounds, map]);
+
+  return null;
+}
+
+// Component to center map on specific point
+function MapCenterHandler({ point }: { point: PontoGPS | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (point) {
+      map.setView([point.lat, point.lng], 16, { animate: true });
+    }
+  }, [point, map]);
 
   return null;
 }
@@ -72,7 +85,6 @@ export function GPSMap() {
   const [filter, setFilter] = useState<FilterType>('all');
   const [isAddingWaypoint, setIsAddingWaypoint] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [clickPosition, setClickPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedPoint, setSelectedPoint] = useState<PontoGPS | null>(null);
 
@@ -86,13 +98,11 @@ export function GPSMap() {
 
   const handleEditPoint = (point: PontoGPS) => {
     setSelectedPoint(point);
-    setEditDialogOpen(true);
   };
 
   const handleUpdatePoint = (data: Parameters<typeof updatePoint.mutate>[0]) => {
     updatePoint.mutate(data, {
       onSuccess: () => {
-        setEditDialogOpen(false);
         setSelectedPoint(null);
       },
     });
@@ -101,7 +111,6 @@ export function GPSMap() {
   const handleDeletePoint = (id: string) => {
     deletePoint.mutate(id, {
       onSuccess: () => {
-        setEditDialogOpen(false);
         setSelectedPoint(null);
       },
     });
@@ -116,19 +125,22 @@ export function GPSMap() {
   const defaultZoom = 4;
 
   return (
-    <div className="relative w-full h-screen">
-      <MapContainer
-        center={defaultCenter}
-        zoom={defaultZoom}
-        className="w-full h-full"
-        zoomControl={false}
-      >
+    <div className="relative w-full h-screen flex">
+      {/* Map Container */}
+      <div className={`flex-1 relative ${selectedPoint ? 'w-[calc(100%-384px)]' : 'w-full'}`}>
+        <MapContainer
+          center={defaultCenter}
+          zoom={defaultZoom}
+          className="w-full h-full"
+          zoomControl={false}
+        >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
         <MapBoundsHandler bounds={bounds} />
+        <MapCenterHandler point={selectedPoint} />
         <MapClickHandler isAdding={isAddingWaypoint} onMapClick={handleMapClick} />
 
         {/* Trails */}
@@ -181,10 +193,11 @@ export function GPSMap() {
       <style>{`
         .leaflet-control-zoom {
           position: absolute;
-          right: 16px;
+          right: ${selectedPoint ? '400px' : '16px'};
           bottom: 80px;
         }
       `}</style>
+    </div>
 
       {/* Create Waypoint Dialog */}
       <CreateWaypointDialog
@@ -195,19 +208,17 @@ export function GPSMap() {
         isLoading={createPoint.isPending}
       />
 
-      {/* Edit Waypoint Dialog */}
-      <EditWaypointDialog
-        isOpen={editDialogOpen}
-        onClose={() => {
-          setEditDialogOpen(false);
-          setSelectedPoint(null);
-        }}
-        onUpdate={handleUpdatePoint}
-        onDelete={handleDeletePoint}
-        point={selectedPoint}
-        isUpdating={updatePoint.isPending}
-        isDeleting={deletePoint.isPending}
-      />
+      {/* Edit Panel */}
+      {selectedPoint && (
+        <EditPanel
+          point={selectedPoint}
+          onClose={() => setSelectedPoint(null)}
+          onUpdate={handleUpdatePoint}
+          onDelete={handleDeletePoint}
+          isUpdating={updatePoint.isPending}
+          isDeleting={deletePoint.isPending}
+        />
+      )}
     </div>
   );
 }

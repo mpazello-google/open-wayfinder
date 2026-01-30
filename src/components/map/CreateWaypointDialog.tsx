@@ -68,7 +68,11 @@ export function CreateWaypointDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange} modal={true}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent 
+        className="sm:max-w-md"
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-waypoint/10 flex items-center justify-center">
