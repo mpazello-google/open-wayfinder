@@ -9,13 +9,32 @@ export function useGPSPoints() {
   const { data: points = [], isLoading, error } = useQuery({
     queryKey: ['pontos-gps'],
     queryFn: async (): Promise<PontoGPS[]> => {
-      const { data, error } = await supabase
-        .from('pontos_gps')
-        .select('*')
-        .order('timestamp', { ascending: true });
+      // Supabase has a default limit of 1000 rows
+      // We need to fetch all records using pagination
+      const allPoints: PontoGPS[] = [];
+      const pageSize = 1000;
+      let page = 0;
+      let hasMore = true;
 
-      if (error) throw error;
-      return data as PontoGPS[];
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from('pontos_gps')
+          .select('*')
+          .order('timestamp', { ascending: true })
+          .range(page * pageSize, (page + 1) * pageSize - 1);
+
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          allPoints.push(...(data as PontoGPS[]));
+          hasMore = data.length === pageSize;
+          page++;
+        } else {
+          hasMore = false;
+        }
+      }
+
+      return allPoints;
     },
   });
 
