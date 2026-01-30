@@ -75,8 +75,20 @@ export function WaypointMarker({ point, onEdit }: WaypointMarkerProps) {
   const isWaypoint = point.tipo === 'waypoint';
   const icon = isWaypoint ? waypointIcon : trackpointIcon;
 
+  const handleMarkerClick = () => {
+    if (onEdit) {
+      onEdit(point);
+    }
+  };
+
   return (
-    <Marker position={[point.lat, point.lng]} icon={icon}>
+    <Marker 
+      position={[point.lat, point.lng]} 
+      icon={icon}
+      eventHandlers={{
+        click: handleMarkerClick,
+      }}
+    >
       <Popup className="gps-popup">
         <div className="p-4 min-w-[240px]">
           <div className="flex items-start gap-3 mb-3">
