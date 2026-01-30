@@ -1,18 +1,12 @@
-import { Compass, Plus, Upload } from 'lucide-react';
+import { Compass, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface MapHeaderProps {
   isAddingWaypoint: boolean;
   onToggleAddWaypoint: () => void;
-  onOpenImport: () => void;
 }
 
-export function MapHeader({ isAddingWaypoint, onToggleAddWaypoint, onOpenImport }: MapHeaderProps) {
-  const handleImportClick = () => {
-    console.log('Import button clicked');
-    onOpenImport();
-  };
-
+export function MapHeader({ isAddingWaypoint, onToggleAddWaypoint }: MapHeaderProps) {
   return (
     <header className="map-control flex items-center justify-between p-3 animate-fade-in">
       <div className="flex items-center gap-3">
@@ -26,17 +20,6 @@ export function MapHeader({ isAddingWaypoint, onToggleAddWaypoint, onOpenImport 
       </div>
 
       <div className="flex items-center gap-2">
-        <Button
-          onClick={handleImportClick}
-          variant="outline"
-          size="sm"
-          className="gap-2"
-        >
-          <Upload className="w-4 h-4" />
-          <span className="hidden sm:inline">Importar CSV</span>
-          <span className="sm:hidden">CSV</span>
-        </Button>
-
         <Button
           onClick={onToggleAddWaypoint}
           variant={isAddingWaypoint ? 'default' : 'outline'}

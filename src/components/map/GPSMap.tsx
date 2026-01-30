@@ -12,7 +12,6 @@ import { MapFilters } from './MapFilters';
 import { MapHeader } from './MapHeader';
 import { MapStats } from './MapStats';
 import { CreateWaypointDialog } from './CreateWaypointDialog';
-import { CSVImportDialog } from './CSVImportDialog';
 
 // Fix Leaflet default marker icon
 const leafletIcon = L.Icon.Default.prototype as {
@@ -73,7 +72,6 @@ export function GPSMap() {
   const [isAddingWaypoint, setIsAddingWaypoint] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [clickPosition, setClickPosition] = useState<{ lat: number; lng: number } | null>(null);
-  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   const bounds = useMemo(() => getBounds(), [getBounds]);
 
@@ -81,12 +79,6 @@ export function GPSMap() {
     setClickPosition({ lat, lng });
     setDialogOpen(true);
     setIsAddingWaypoint(false);
-  };
-
-  const handleOpenImport = () => {
-    console.log('handleOpenImport called, setting importDialogOpen to true');
-    setImportDialogOpen(true);
-    console.log('importDialogOpen state should be true now');
   };
 
   const showWaypoints = filter === 'all' || filter === 'waypoints';
@@ -137,7 +129,6 @@ export function GPSMap() {
         <MapHeader
           isAddingWaypoint={isAddingWaypoint}
           onToggleAddWaypoint={() => setIsAddingWaypoint(!isAddingWaypoint)}
-          onOpenImport={handleOpenImport}
         />
       </div>
 
@@ -178,36 +169,6 @@ export function GPSMap() {
         isLoading={createPoint.isPending}
       />
 
-      {/* CSV Import Dialog */}
-      <CSVImportDialog
-        isOpen={importDialogOpen}
-        onClose={() => {
-          console.log('Dialog onClose called');
-          setImportDialogOpen(false);
-        }}
-      />
-
-      {/* Debug button */}
-      <button
-        onClick={() => {
-          console.log('Debug button clicked, current state:', importDialogOpen);
-          setImportDialogOpen(!importDialogOpen);
-        }}
-        style={{
-          position: 'fixed',
-          top: '50%',
-          right: '10px',
-          zIndex: 10000,
-          padding: '10px 20px',
-          background: 'red',
-          color: 'white',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-        }}
-      >
-        TEST DIALOG: {importDialogOpen ? 'OPEN' : 'CLOSED'}
-      </button>
     </div>
   );
 }
