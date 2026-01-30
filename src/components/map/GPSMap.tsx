@@ -67,7 +67,7 @@ function MapClickHandler({
 }
 
 export function GPSMap() {
-  const { waypoints, tracks, isLoading, createPoint, getBounds } = useGPSPoints();
+  const { waypoints, trackpoints, tracks, isLoading, createPoint, getBounds } = useGPSPoints();
   const [filter, setFilter] = useState<FilterType>('all');
   const [isAddingWaypoint, setIsAddingWaypoint] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -83,6 +83,7 @@ export function GPSMap() {
 
   const showWaypoints = filter === 'all' || filter === 'waypoints';
   const showTrails = filter === 'all' || filter === 'trails';
+  const allMarkers = showWaypoints ? [...waypoints, ...trackpoints] : trackpoints;
 
   // Default center (Brazil)
   const defaultCenter: [number, number] = [-15.7801, -47.9292];
@@ -108,20 +109,18 @@ export function GPSMap() {
         {showTrails &&
           tracks.map((track) => <TrailPolyline key={track.id} track={track} />)}
 
-        {/* Waypoints with clustering */}
-        {showWaypoints && (
-          <MarkerClusterGroup
-            chunkedLoading
-            maxClusterRadius={60}
-            spiderfyOnMaxZoom
-            showCoverageOnHover={false}
-            disableClusteringAtZoom={16}
-          >
-            {waypoints.map((point) => (
-              <WaypointMarker key={point.id} point={point} />
-            ))}
-          </MarkerClusterGroup>
-        )}
+        {/* All points as markers with clustering */}
+        <MarkerClusterGroup
+          chunkedLoading
+          maxClusterRadius={60}
+          spiderfyOnMaxZoom
+          showCoverageOnHover={false}
+          disableClusteringAtZoom={16}
+        >
+          {allMarkers.map((point) => (
+            <WaypointMarker key={point.id} point={point} />
+          ))}
+        </MarkerClusterGroup>
       </MapContainer>
 
       {/* Header */}
@@ -146,6 +145,7 @@ export function GPSMap() {
       <div className="absolute bottom-4 left-4 z-[1000]">
         <MapStats
           waypointsCount={waypoints.length}
+          trackpointsCount={trackpoints.length}
           tracksCount={tracks.length}
           isLoading={isLoading}
         />

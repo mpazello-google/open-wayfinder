@@ -109,6 +109,7 @@ export function useGPSPoints() {
   return {
     points,
     waypoints,
+    trackpoints,
     tracks,
     isLoading,
     error,
