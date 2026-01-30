@@ -26,4 +26,14 @@ export interface CreatePontoGPS {
   track_id?: string;
 }
 
+export interface UpdatePontoGPS {
+  nome?: string;
+  descricao?: string | null;
+  lat?: number;
+  lng?: number;
+  tipo?: 'waypoint' | 'trackpoint';
+  elevacao?: number | null;
+  track_id?: string | null;
+}
+
 export type FilterType = 'all' | 'waypoints' | 'trails';

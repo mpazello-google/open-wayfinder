@@ -5,13 +5,14 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 import { useGPSPoints } from '@/hooks/useGPSPoints';
-import { FilterType } from '@/types/gps';
+import { FilterType, PontoGPS } from '@/types/gps';
 import { WaypointMarker } from './WaypointMarker';
 import { TrailPolyline } from './TrailPolyline';
 import { MapFilters } from './MapFilters';
 import { MapHeader } from './MapHeader';
 import { MapStats } from './MapStats';
 import { CreateWaypointDialog } from './CreateWaypointDialog';
+import { EditWaypointDialog } from './EditWaypointDialog';
 
 // Fix Leaflet default marker icon
 const leafletIcon = L.Icon.Default.prototype as {
@@ -67,18 +68,43 @@ function MapClickHandler({
 }
 
 export function GPSMap() {
-  const { waypoints, trackpoints, tracks, isLoading, createPoint, getBounds } = useGPSPoints();
+  const { waypoints, trackpoints, tracks, isLoading, createPoint, updatePoint, deletePoint, getBounds } = useGPSPoints();
   const [filter, setFilter] = useState<FilterType>('all');
   const [isAddingWaypoint, setIsAddingWaypoint] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [clickPosition, setClickPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [selectedPoint, setSelectedPoint] = useState<PontoGPS | null>(null);
 
   const bounds = useMemo(() => getBounds(), [getBounds]);
 
   const handleMapClick = (lat: number, lng: number) => {
     setClickPosition({ lat, lng });
-    setDialogOpen(true);
+    setCreateDialogOpen(true);
     setIsAddingWaypoint(false);
+  };
+
+  const handleEditPoint = (point: PontoGPS) => {
+    setSelectedPoint(point);
+    setEditDialogOpen(true);
+  };
+
+  const handleUpdatePoint = (data: Parameters<typeof updatePoint.mutate>[0]) => {
+    updatePoint.mutate(data, {
+      onSuccess: () => {
+        setEditDialogOpen(false);
+        setSelectedPoint(null);
+      },
+    });
+  };
+
+  const handleDeletePoint = (id: string) => {
+    deletePoint.mutate(id, {
+      onSuccess: () => {
+        setEditDialogOpen(false);
+        setSelectedPoint(null);
+      },
+    });
   };
 
   const showWaypoints = filter === 'all' || filter === 'waypoints';
@@ -118,7 +144,7 @@ export function GPSMap() {
           disableClusteringAtZoom={16}
         >
           {allMarkers.map((point) => (
-            <WaypointMarker key={point.id} point={point} />
+            <WaypointMarker key={point.id} point={point} onEdit={handleEditPoint} />
           ))}
         </MarkerClusterGroup>
       </MapContainer>
@@ -162,13 +188,26 @@ export function GPSMap() {
 
       {/* Create Waypoint Dialog */}
       <CreateWaypointDialog
-        isOpen={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        isOpen={createDialogOpen}
+        onClose={() => setCreateDialogOpen(false)}
         onCreate={(data) => createPoint.mutate(data)}
         position={clickPosition}
         isLoading={createPoint.isPending}
       />
 
+      {/* Edit Waypoint Dialog */}
+      <EditWaypointDialog
+        isOpen={editDialogOpen}
+        onClose={() => {
+          setEditDialogOpen(false);
+          setSelectedPoint(null);
+        }}
+        onUpdate={handleUpdatePoint}
+        onDelete={handleDeletePoint}
+        point={selectedPoint}
+        isUpdating={updatePoint.isPending}
+        isDeleting={deletePoint.isPending}
+      />
     </div>
   );
 }

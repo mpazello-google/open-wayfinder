@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { PontoGPS, CreatePontoGPS, Track } from '@/types/gps';
+import { PontoGPS, CreatePontoGPS, UpdatePontoGPS, Track } from '@/types/gps';
 import { toast } from 'sonner';
 
 export function useGPSPoints() {
@@ -55,6 +55,45 @@ export function useGPSPoints() {
     },
     onError: (error) => {
       toast.error('Erro ao criar waypoint: ' + error.message);
+    },
+  });
+
+  const updatePoint = useMutation({
+    mutationFn: async ({ id, ...updates }: UpdatePontoGPS & { id: string }) => {
+      const { data, error } = await supabase
+        .from('pontos_gps')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pontos-gps'] });
+      toast.success('Ponto atualizado com sucesso!');
+    },
+    onError: (error) => {
+      toast.error('Erro ao atualizar ponto: ' + error.message);
+    },
+  });
+
+  const deletePoint = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('pontos_gps')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pontos-gps'] });
+      toast.success('Ponto excluído com sucesso!');
+    },
+    onError: (error) => {
+      toast.error('Erro ao excluir ponto: ' + error.message);
     },
   });
 
@@ -114,6 +153,8 @@ export function useGPSPoints() {
     isLoading,
     error,
     createPoint,
+    updatePoint,
+    deletePoint,
     getBounds,
   };
 }
