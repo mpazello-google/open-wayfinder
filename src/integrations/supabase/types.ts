@@ -14,11 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      grupos_gps: {
+        Row: {
+          cor: string
+          created_at: string
+          descricao: string | null
+          id: string
+          nome: string
+        }
+        Insert: {
+          cor?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome: string
+        }
+        Update: {
+          cor?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
       pontos_gps: {
         Row: {
           created_at: string
           descricao: string | null
           elevacao: number | null
+          grupo_id: string | null
           id: string
           lat: number
           lng: number
@@ -31,6 +56,7 @@ export type Database = {
           created_at?: string
           descricao?: string | null
           elevacao?: number | null
+          grupo_id?: string | null
           id?: string
           lat: number
           lng: number
@@ -43,6 +69,7 @@ export type Database = {
           created_at?: string
           descricao?: string | null
           elevacao?: number | null
+          grupo_id?: string | null
           id?: string
           lat?: number
           lng?: number
@@ -51,7 +78,15 @@ export type Database = {
           tipo?: string
           track_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pontos_gps_grupo_id_fkey"
+            columns: ["grupo_id"]
+            isOneToOne: false
+            referencedRelation: "grupos_gps"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
