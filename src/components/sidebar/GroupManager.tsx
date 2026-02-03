@@ -64,6 +64,7 @@ export function GroupManager({
   const [formData, setFormData] = useState({ nome: '', cor: PRESET_COLORS[0], descricao: '' });
 
   const handleOpenCreate = () => {
+    console.log('Opening create dialog');
     setEditingGroup(null);
     setFormData({ nome: '', cor: PRESET_COLORS[0], descricao: '' });
     setIsDialogOpen(true);
@@ -110,8 +111,14 @@ export function GroupManager({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-foreground">Grupos</h3>
-        <Button size="sm" variant="ghost" onClick={handleOpenCreate} className="h-7 px-2">
+        <Button 
+          size="sm" 
+          variant="outline" 
+          onClick={handleOpenCreate} 
+          className="h-8 px-3 gap-1.5"
+        >
           <Plus className="h-4 w-4" />
+          <span className="text-xs">Novo</span>
         </Button>
       </div>
 
