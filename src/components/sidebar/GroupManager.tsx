@@ -199,6 +199,7 @@ export function GroupManager({
                 {PRESET_COLORS.map((color) => (
                   <button
                     key={color}
+                    type="button"
                     onClick={() => setFormData({ ...formData, cor: color })}
                     className={cn(
                       'h-8 w-8 rounded-full transition-transform hover:scale-110',
