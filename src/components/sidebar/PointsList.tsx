@@ -1,9 +1,12 @@
 import { useState, useMemo } from 'react';
-import { MapPin, Route, Search, Edit2 } from 'lucide-react';
+import { MapPin, Route, Search, Edit2, Download } from 'lucide-react';
 import { PontoGPS, GrupoGPS } from '@/types/gps';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { generateGPX, downloadGPX } from '@/lib/gpx';
+import { toast } from 'sonner';
 
 interface PointsListProps {
   points: PontoGPS[];
@@ -52,9 +55,27 @@ export function PointsList({
   const waypoints = filteredPoints.filter((p) => p.tipo === 'waypoint');
   const trackpoints = filteredPoints.filter((p) => p.tipo === 'trackpoint');
 
+  const handleExportGPX = () => {
+    if (filteredPoints.length === 0) {
+      toast.error('Nenhum ponto para exportar');
+      return;
+    }
+
+    try {
+      const gpxContent = generateGPX(filteredPoints);
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `waypoints_${timestamp}.gpx`;
+      downloadGPX(gpxContent, filename);
+      toast.success(`${filteredPoints.length} pontos exportados com sucesso!`);
+    } catch (error) {
+      console.error('Erro ao exportar GPX:', error);
+      toast.error('Erro ao exportar arquivo GPX');
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
-      <div className="p-3 border-b border-border">
+      <div className="p-3 border-b border-border space-y-2">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -64,9 +85,21 @@ export function PointsList({
             className="pl-9"
           />
         </div>
-        <p className="text-xs text-muted-foreground mt-2">
-          {filteredPoints.length} pontos encontrados
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">
+            {filteredPoints.length} pontos encontrados
+          </p>
+          <Button
+            onClick={handleExportGPX}
+            disabled={filteredPoints.length === 0}
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs gap-1.5"
+          >
+            <Download className="h-3 w-3" />
+            Exportar GPX
+          </Button>
+        </div>
       </div>
 
       <ScrollArea className="flex-1">

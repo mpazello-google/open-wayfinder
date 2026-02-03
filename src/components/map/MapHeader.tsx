@@ -1,5 +1,6 @@
-import { Compass, Plus } from 'lucide-react';
+import { Compass, Plus, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 interface MapHeaderProps {
   isAddingWaypoint: boolean;
@@ -7,6 +8,8 @@ interface MapHeaderProps {
 }
 
 export function MapHeader({ isAddingWaypoint, onToggleAddWaypoint }: MapHeaderProps) {
+  const navigate = useNavigate();
+
   return (
     <header className="map-control flex items-center justify-between p-3 animate-fade-in">
       <div className="flex items-center gap-3">
@@ -20,6 +23,15 @@ export function MapHeader({ isAddingWaypoint, onToggleAddWaypoint }: MapHeaderPr
       </div>
 
       <div className="flex items-center gap-2">
+        <Button
+          onClick={() => navigate('/import-gpx')}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        >
+          <Upload className="w-4 h-4" />
+          <span className="hidden sm:inline">Importar GPX</span>
+        </Button>
         <Button
           onClick={onToggleAddWaypoint}
           variant={isAddingWaypoint ? 'default' : 'outline'}
