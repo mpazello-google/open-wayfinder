@@ -77,6 +77,7 @@ export function CreateWaypointDialog({
     <Dialog open={isOpen} onOpenChange={handleOpenChange} modal={true}>
       <DialogContent 
         className="sm:max-w-md z-[10000]"
+        style={{ zIndex: 10000 }}
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >

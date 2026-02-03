@@ -301,6 +301,15 @@
 
 /* Ensure dialogs appear above Leaflet map (which uses z-index ~400-1000) */
 [data-radix-dialog-overlay],
-[data-radix-dialog-content] {
+[data-radix-dialog-content],
+[data-radix-alert-dialog-overlay],
+[data-radix-alert-dialog-content],
+[role="dialog"],
+[role="alertdialog"] {
+  z-index: 10000 !important;
+}
+
+/* Ensure dialog portal is on top */
+[data-radix-portal] {
   z-index: 10000 !important;
 }
