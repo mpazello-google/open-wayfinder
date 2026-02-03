@@ -184,7 +184,7 @@ export function GroupManager({
 
       {/* Create/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md z-[10000]">
           <DialogHeader>
             <DialogTitle>
               {editingGroup ? 'Editar Grupo' : 'Novo Grupo'}
@@ -243,7 +243,7 @@ export function GroupManager({
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="z-[10000]">
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir grupo?</AlertDialogTitle>
             <AlertDialogDescription>
