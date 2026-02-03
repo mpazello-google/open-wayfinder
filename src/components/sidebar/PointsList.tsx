@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
-import { MapPin, Route, Search, Edit2, Download } from 'lucide-react';
+import { MapPin, Route, Search, Edit2, Download, CheckSquare, Square } from 'lucide-react';
 import { PontoGPS, GrupoGPS } from '@/types/gps';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { generateGPX, downloadGPX } from '@/lib/gpx';
 import { toast } from 'sonner';
@@ -24,6 +25,7 @@ export function PointsList({
   onEditPoint,
 }: PointsListProps) {
   const [search, setSearch] = useState('');
+  const [selectedPoints, setSelectedPoints] = useState<Set<string>>(new Set());
 
   const filteredPoints = useMemo(() => {
     let filtered = points;
@@ -55,18 +57,43 @@ export function PointsList({
   const waypoints = filteredPoints.filter((p) => p.tipo === 'waypoint');
   const trackpoints = filteredPoints.filter((p) => p.tipo === 'trackpoint');
 
+  const togglePointSelection = (pointId: string) => {
+    setSelectedPoints((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(pointId)) {
+        newSet.delete(pointId);
+      } else {
+        newSet.add(pointId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedPoints.size === filteredPoints.length) {
+      setSelectedPoints(new Set());
+    } else {
+      setSelectedPoints(new Set(filteredPoints.map((p) => p.id)));
+    }
+  };
+
+  const allSelected = filteredPoints.length > 0 && selectedPoints.size === filteredPoints.length;
+  const someSelected = selectedPoints.size > 0 && selectedPoints.size < filteredPoints.length;
+
   const handleExportGPX = () => {
-    if (filteredPoints.length === 0) {
-      toast.error('Nenhum ponto para exportar');
+    if (selectedPoints.size === 0) {
+      toast.error('Selecione pelo menos um ponto para exportar');
       return;
     }
 
     try {
-      const gpxContent = generateGPX(filteredPoints);
+      const pointsToExport = points.filter((p) => selectedPoints.has(p.id));
+      const gpxContent = generateGPX(pointsToExport);
       const timestamp = new Date().toISOString().split('T')[0];
       const filename = `waypoints_${timestamp}.gpx`;
       downloadGPX(gpxContent, filename);
-      toast.success(`${filteredPoints.length} pontos exportados com sucesso!`);
+      toast.success(`${pointsToExport.length} pontos exportados com sucesso!`);
+      setSelectedPoints(new Set()); // Clear selection after export
     } catch (error) {
       console.error('Erro ao exportar GPX:', error);
       toast.error('Erro ao exportar arquivo GPX');
@@ -85,13 +112,29 @@ export function PointsList({
             className="pl-9"
           />
         </div>
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            {filteredPoints.length} pontos encontrados
-          </p>
+        <div className="flex items-center justify-between gap-2">
+          <button
+            onClick={toggleSelectAll}
+            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {allSeleisSelected={selectedPoints.has(point.id)}
+                    onToggleSelect={() => togglePointSelection(point.id)}
+                    cted ? (
+              <CheckSquare className="h-4 w-4" />
+            ) : someSelected ? (
+              <CheckSquare className="h-4 w-4 opacity-50" />
+            ) : (
+              <Square className="h-4 w-4" />
+            )}
+            {selectedPoints.size > 0 ? (
+              <span>{selectedPoints.size} selecionados</span>
+            ) : (
+              <span>Selecionar todos</span>
+            )}
+          </button>
           <Button
             onClick={handleExportGPX}
-            disabled={filteredPoints.length === 0}
+            disabled={selectedPoints.size === 0}
             variant="outline"
             size="sm"
             className="h-7 text-xs gap-1.5"
@@ -136,6 +179,8 @@ export function PointsList({
                 {trackpoints.slice(0, 100).map((point) => (
                   <PointItem
                     key={point.id}
+                    isSelected={selectedPoints.has(point.id)}
+                    onToggleSelect={() => togglePointSelection(point.id)}
                     point={point}
                     groupColor={getGroupColor(point.grupo_id)}
                     onSelect={() => onSelectPoint(point)}
@@ -163,20 +208,29 @@ export function PointsList({
 }
 
 interface PointItemProps {
-  point: PontoGPS;
-  groupColor: string | null;
+  isSelected: boolean;
+  onToggleSelect: () => void;
   onSelect: () => void;
   onEdit: () => void;
 }
 
-function PointItem({ point, groupColor, onSelect, onEdit }: PointItemProps) {
+function PointItem({ point, groupColor, isSelected, onToggleSelect, onSelect, onEdit }: PointItemProps) {
   const isWaypoint = point.tipo === 'waypoint';
 
   return (
     <div
       className={cn(
         'flex items-center gap-2 px-2 py-1.5 rounded-md text-sm group',
-        'hover:bg-muted cursor-pointer transition-colors'
+        'hover:bg-muted cursor-pointer transition-colors',
+        isSelected && 'bg-muted/50'
+      )}
+    >
+      <Checkbox
+        checked={isSelected}
+        onCheckedChange={onToggleSelect}
+        onClick={(e) => e.stopPropagation()}
+        className="shrink-0"
+      /    'hover:bg-muted cursor-pointer transition-colors'
       )}
     >
       <button onClick={onSelect} className="flex items-center gap-2 flex-1 min-w-0 text-left">
