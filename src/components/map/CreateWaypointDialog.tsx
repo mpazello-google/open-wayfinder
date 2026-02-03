@@ -143,6 +143,9 @@ export function CreateWaypointDialog({
                 type="number"
                 value={elevacao}
                 onChange={(e) => setElevacao(e.target.value)}
+                placeholder="Ex: 1250"
+              />
+            </div>
 
             {groups.length > 0 && (
               <div className="space-y-2">
@@ -168,9 +171,6 @@ export function CreateWaypointDialog({
                 </Select>
               </div>
             )}
-                placeholder="Ex: 1250"
-              />
-            </div>
           </div>
 
           <DialogFooter>

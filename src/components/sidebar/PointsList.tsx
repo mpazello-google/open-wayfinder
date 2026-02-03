@@ -117,9 +117,7 @@ export function PointsList({
             onClick={toggleSelectAll}
             className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            {allSeleisSelected={selectedPoints.has(point.id)}
-                    onToggleSelect={() => togglePointSelection(point.id)}
-                    cted ? (
+            {allSelected ? (
               <CheckSquare className="h-4 w-4" />
             ) : someSelected ? (
               <CheckSquare className="h-4 w-4 opacity-50" />
@@ -160,6 +158,8 @@ export function PointsList({
                     key={point.id}
                     point={point}
                     groupColor={getGroupColor(point.grupo_id)}
+                    isSelected={selectedPoints.has(point.id)}
+                    onToggleSelect={() => togglePointSelection(point.id)}
                     onSelect={() => onSelectPoint(point)}
                     onEdit={() => onEditPoint(point)}
                   />
@@ -179,10 +179,10 @@ export function PointsList({
                 {trackpoints.slice(0, 100).map((point) => (
                   <PointItem
                     key={point.id}
-                    isSelected={selectedPoints.has(point.id)}
-                    onToggleSelect={() => togglePointSelection(point.id)}
                     point={point}
                     groupColor={getGroupColor(point.grupo_id)}
+                    isSelected={selectedPoints.has(point.id)}
+                    onToggleSelect={() => togglePointSelection(point.id)}
                     onSelect={() => onSelectPoint(point)}
                     onEdit={() => onEditPoint(point)}
                   />
@@ -208,6 +208,8 @@ export function PointsList({
 }
 
 interface PointItemProps {
+  point: PontoGPS;
+  groupColor: string | null;
   isSelected: boolean;
   onToggleSelect: () => void;
   onSelect: () => void;
@@ -230,9 +232,7 @@ function PointItem({ point, groupColor, isSelected, onToggleSelect, onSelect, on
         onCheckedChange={onToggleSelect}
         onClick={(e) => e.stopPropagation()}
         className="shrink-0"
-      /    'hover:bg-muted cursor-pointer transition-colors'
-      )}
-    >
+      />
       <button onClick={onSelect} className="flex items-center gap-2 flex-1 min-w-0 text-left">
         <div className="relative shrink-0">
           {isWaypoint ? (
