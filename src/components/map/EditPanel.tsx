@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { MapPin, Mountain, Trash2, Navigation, X } from 'lucide-react';
-import { PontoGPS, UpdatePontoGPS } from '@/types/gps';
+import { MapPin, Mountain, Trash2, Navigation, X, FolderOpen } from 'lucide-react';
+import { PontoGPS, UpdatePontoGPS, GrupoGPS } from '@/types/gps';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,9 +16,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface EditPanelProps {
   point: PontoGPS | null;
+  groups: GrupoGPS[];
   onClose: () => void;
   onUpdate: (data: UpdatePontoGPS & { id: string }) => void;
   onDelete: (id: string) => void;
@@ -28,6 +36,7 @@ interface EditPanelProps {
 
 export function EditPanel({
   point,
+  groups,
   onClose,
   onUpdate,
   onDelete,
@@ -39,6 +48,7 @@ export function EditPanel({
   const [elevacao, setElevacao] = useState('');
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
+  const [grupoId, setGrupoId] = useState<string>('none');
 
   useEffect(() => {
     if (point) {
@@ -47,6 +57,7 @@ export function EditPanel({
       setElevacao(point.elevacao?.toString() || '');
       setLat(point.lat.toString());
       setLng(point.lng.toString());
+      setGrupoId(point.grupo_id || 'none');
     }
   }, [point]);
 
@@ -63,6 +74,7 @@ export function EditPanel({
       lat: parseFloat(lat),
       lng: parseFloat(lng),
       elevacao: elevacao ? parseFloat(elevacao) : null,
+      grupo_id: grupoId === 'none' ? null : grupoId,
     });
   };
 
@@ -131,6 +143,32 @@ export function EditPanel({
               placeholder="Ex: Mirante da Pedra Grande"
               required
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="grupo" className="flex items-center gap-1.5">
+              <FolderOpen className="w-4 h-4 text-muted-foreground" />
+              Grupo
+            </Label>
+            <Select value={grupoId} onValueChange={setGrupoId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um grupo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem grupo</SelectItem>
+                {groups.map((group) => (
+                  <SelectItem key={group.id} value={group.id}>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="h-3 w-3 rounded-full"
+                        style={{ backgroundColor: group.cor }}
+                      />
+                      {group.nome}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
