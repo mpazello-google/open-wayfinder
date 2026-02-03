@@ -11,14 +11,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MapPin, Mountain } from 'lucide-react';
-import { CreatePontoGPS } from '@/types/gps';
+import { CreatePontoGPS, GrupoGPS } from '@/types/gps';
 
 interface CreateWaypointDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onCreate: (data: CreatePontoGPS) => void;
   position: { lat: number; lng: number } | null;
+  groups?: GrupoGPS[];
   isLoading?: boolean;
 }
 
@@ -27,11 +29,13 @@ export function CreateWaypointDialog({
   onClose,
   onCreate,
   position,
+  groups = [],
   isLoading,
 }: CreateWaypointDialogProps) {
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
   const [elevacao, setElevacao] = useState('');
+  const [grupoId, setGrupoId] = useState<string>('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,12 +48,14 @@ export function CreateWaypointDialog({
       lng: position.lng,
       tipo: 'waypoint',
       elevacao: elevacao ? parseFloat(elevacao) : undefined,
+      grupo_id: grupoId || undefined,
     });
 
     // Reset form
     setNome('');
     setDescricao('');
     setElevacao('');
+    setGrupoId('');
     onClose();
   };
 
@@ -57,6 +63,7 @@ export function CreateWaypointDialog({
     setNome('');
     setDescricao('');
     setElevacao('');
+    setGrupoId('');
     onClose();
   };
 
@@ -136,6 +143,31 @@ export function CreateWaypointDialog({
                 type="number"
                 value={elevacao}
                 onChange={(e) => setElevacao(e.target.value)}
+
+            {groups.length > 0 && (
+              <div className="space-y-2">
+                <Label htmlFor="grupo">Grupo</Label>
+                <Select value={grupoId} onValueChange={setGrupoId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um grupo (opcional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Nenhum grupo</SelectItem>
+                    {groups.map((group) => (
+                      <SelectItem key={group.id} value={group.id}>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-3 w-3 rounded-full"
+                            style={{ backgroundColor: group.cor }}
+                          />
+                          {group.nome}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
                 placeholder="Ex: 1250"
               />
             </div>

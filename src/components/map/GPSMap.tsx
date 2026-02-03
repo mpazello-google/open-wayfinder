@@ -267,6 +267,7 @@ export function GPSMap() {
         onClose={() => setCreateDialogOpen(false)}
         onCreate={(data) => createPoint.mutate(data)}
         position={clickPosition}
+        groups={groups}
         isLoading={createPoint.isPending}
       />
 
